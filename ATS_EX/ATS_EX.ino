@@ -65,6 +65,9 @@ int getLastStep()
 //Initialize controller
 void setup()
 {
+#ifdef TEST_FT8
+
+#else
     // Replace AVR direct register usage with Arduino API for Nano R4
 
     // Pin 13 (LED) as output (original used DDRB / DDB5).
@@ -132,6 +135,7 @@ void setup()
     //Draw main screen
     oled.clear();
     showStatus();
+#endif
 }
 
 uint8_t volumeEvent(uint8_t event, uint8_t pin)

@@ -1,8 +1,12 @@
 #pragma once
 
+//SSD1306 Address is 0x3C
+
 //If you set this def to 0 project will be compiled without RDS 
 //and everything related to RDS will be excluded from build
 #define USE_RDS 1
+
+#define TEST_FT8 0
 
 #define EEPROM_APP_ID				235
 #define EEPROM_DATA_START_ADDRESS	1
@@ -34,7 +38,10 @@
 #define AGC_BUTTON       11
 #define STEP_BUTTON      10
 
-#define ENCODER_BUTTON   14
+#define ENCODER_BUTTON   13 //D13
+
+// FT8
+#define NF_IN //A2 als digitaler eingang            
 
 // Default values
 #define MIN_ELAPSED_TIME 100
