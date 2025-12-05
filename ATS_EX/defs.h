@@ -37,7 +37,7 @@
 #define AGC_BUTTON       11
 #define STEP_BUTTON      10
 
-#define ENCODER_BUTTON   13 //D13
+#define ENCODER_BUTTON   A0 
 
 // FT8
 #define NF_IN //A2 als digitaler eingang            
