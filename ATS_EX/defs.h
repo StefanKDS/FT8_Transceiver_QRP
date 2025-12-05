@@ -6,7 +6,6 @@
 //and everything related to RDS will be excluded from build
 #define USE_RDS 1
 
-#define TEST_FT8 0
 
 #define EEPROM_APP_ID				235
 #define EEPROM_DATA_START_ADDRESS	1
@@ -25,8 +24,8 @@
 #define BATTERY_VOLTAGE_PIN A1
 
 // Encoder
-#define ENCODER_PIN_A 2
-#define ENCODER_PIN_B 3
+#define ENCODER_PIN_A 3
+#define ENCODER_PIN_B 2
 
 // Buttons
 #define MODE_SWITCH       4 

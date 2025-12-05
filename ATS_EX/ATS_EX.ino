@@ -68,6 +68,8 @@ void setup()
 #ifdef TEST_FT8
 
 #else
+    Serial.begin(9600);
+    Serial.println("PinModes");
     // Replace AVR direct register usage with Arduino API for Nano R4
 
     // Pin 13 (LED) as output (original used DDRB / DDB5).
@@ -83,10 +85,14 @@ void setup()
     // Note: ADC scale on Nano R4 may differ from ATmega328p. You may need to calibrate.
     g_voltagePinConnnected = analogRead(BATTERY_VOLTAGE_PIN) > 300;
 
+    Serial.println("OLED");
+
     oled.begin(128, 64, sizeof(tiny4koled_init_128x64br), tiny4koled_init_128x64br);
     oled.clear();
     oled.on();
     oled.setFont(DEFAULT_FONT);
+
+    Serial.println("Start");
 
     // Check for EEPROM reset via encoder button (was reading PINC) 
     // Original logic: if (!(PINC & (1 << (ENCODER_BUTTON - 14))))
@@ -112,15 +118,18 @@ void setup()
     }
     oled.clear();
 
+    Serial.println("Encoder Interrupts");
     //Encoder interrupts
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoder, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), rotaryEncoder, CHANGE);
 
+    Serial.println("SI4735");
     g_si4735.getDeviceI2CAddress(RESET_PIN);
     g_si4735.setup(RESET_PIN, MW_BAND_TYPE);
 
     delay(500);
 
+    Serial.println("EEPROM");
     //Load settings from EEPROM
     if (EEPROM.read(EEPROM_VERSION_ADDRESS) == APP_VERSION && EEPROM.read(EEPROM_APP_ID_ADDRESS) == EEPROM_APP_ID)
         readAllReceiverInformation();
