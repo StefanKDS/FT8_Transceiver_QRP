@@ -13,8 +13,9 @@
 #include <SI4735.h>
 #include <EEPROM.h>
 #include <Tiny4kOLED.h>
-#include "PixelOperatorBold.h"
 
+#include "PixelOperatorBold.h"
+#include "si5351.h"
 #include "font14x24sevenSeg.h"
 #include "Rotary.h"
 #include "SimpleButton.h"
@@ -65,10 +66,28 @@ int getLastStep()
 //Initialize controller
 void setup()
 {
-#ifdef TEST_FT8
-
-#else
     Serial.begin(9600);
+
+    delay(3000);
+
+    // SI5351 ////////////////////////////////////////////////////
+    Serial.println("Init Si5351");
+    if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 0, 0) == true)
+    {
+        Serial.println("Init Si5351 OK !");
+        si5351.set_correction(0, SI5351_PLL_INPUT_XO);
+        si5351.set_pll(SI5351_PLL_FIXED, SI5351_PLLA);
+
+        // TX (CLK2) vorbereiten
+        si5351.drive_strength(SI5351_CLK2, SI5351_DRIVE_8MA);
+        si5351.output_enable(SI5351_CLK2, 0);
+    }
+    else
+    {
+        Serial.println("Init Si5351 failed !");
+    }
+
+    // PinModes ////////////////////////////////////////////////////
     Serial.println("PinModes");
     // Replace AVR direct register usage with Arduino API for Nano R4
 
@@ -85,6 +104,7 @@ void setup()
     // Note: ADC scale on Nano R4 may differ from ATmega328p. You may need to calibrate.
     g_voltagePinConnnected = analogRead(BATTERY_VOLTAGE_PIN) > 300;
 
+    // OLED ////////////////////////////////////////////////////
     Serial.println("OLED");
 
     oled.begin(128, 64, sizeof(tiny4koled_init_128x64br), tiny4koled_init_128x64br);
@@ -92,6 +112,7 @@ void setup()
     oled.on();
     oled.setFont(DEFAULT_FONT);
 
+    // START ////////////////////////////////////////////////////
     Serial.println("Start");
 
     // Check for EEPROM reset via encoder button (was reading PINC) 
@@ -123,12 +144,14 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoder, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), rotaryEncoder, CHANGE);
 
+    // SI4735 ////////////////////////////////////////////////////
     Serial.println("SI4735");
     g_si4735.getDeviceI2CAddress(RESET_PIN);
     g_si4735.setup(RESET_PIN, MW_BAND_TYPE);
 
     delay(500);
 
+    // EEPROM ////////////////////////////////////////////////////
     Serial.println("EEPROM");
     //Load settings from EEPROM
     if (EEPROM.read(EEPROM_VERSION_ADDRESS) == APP_VERSION && EEPROM.read(EEPROM_APP_ID_ADDRESS) == EEPROM_APP_ID)
@@ -141,10 +164,11 @@ void setup()
     g_currentFrequency = g_previousFrequency = g_si4735.getFrequency();
     g_si4735.setVolume(g_volume);
 
+    si5351.set_freq(g_currentFrequency * 1000ULL, SI5351_CLK2);
+
     //Draw main screen
     oled.clear();
     showStatus();
-#endif
 }
 
 uint8_t volumeEvent(uint8_t event, uint8_t pin)
@@ -420,6 +444,13 @@ void showFrequency(bool cleanDisplay = false)
         oledPrint(ssbSuffix);
         if (len != prevLen && len < prevLen)
             oledPrint("/");
+    }
+
+    if (g_bandIndex == SW_BAND_TYPE)
+    {
+       si5351.set_freq(g_currentFrequency * 1000ULL, SI5351_CLK2);
+       Serial.println(g_currentFrequency);
+       Serial.println(g_currentFrequency * 1000ULL);
     }
 
     if (g_Settings[SettingsIndex::UnitsSwitch].param == 1 && (!isSSB() || isSSB() && len < 5))
