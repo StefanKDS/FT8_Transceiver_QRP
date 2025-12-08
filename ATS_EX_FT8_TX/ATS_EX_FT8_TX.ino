@@ -47,7 +47,7 @@ void OnMessage(String message)
       
       output[j] = '\0';  // Nullterminator setzen!
 
-      freq = atof(output);  // Umwandlung zu float und setzen der Frequenz
+      freq = atof(output) * 1000;  // Umwandlung zu float und setzen der Frequenz
     }
   } 
   else 
@@ -128,7 +128,8 @@ void loop(void)
           digitalWrite(13,1);
           // TX on
           si5351.output_enable(SI5351_CLK2, 1);   // TX on
-          Serial.println("<TX>1</TX>");
+          //Serial.println("<TX>1</TX>");
+          Serial.println(freq);
       }
       si5351.set_freq((freq * 100 + codefreq), SI5351_CLK2);  
       FSKtx = 1;
@@ -140,6 +141,6 @@ void loop(void)
  }
   digitalWrite(13,0);
   si5351.output_enable(SI5351_CLK2, 0);   //TX off
-  Serial.println("<TX>0</TX>");
+  //Serial.println("<TX>0</TX>");
   FSKtx = 0;
 }
