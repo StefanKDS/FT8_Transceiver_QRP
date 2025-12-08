@@ -21,6 +21,8 @@ uint32_t g_lastAdjustmentTime = 0;
 uint8_t g_muteVolume = 0;
 int g_currentBFO = 0;
 
+bool g_txActive = false;
+
 // Encoder buttons
 SimpleButton  btn_Bandwidth(BANDWIDTH_BUTTON);
 SimpleButton  btn_BandUp(BAND_BUTTON);
@@ -300,4 +302,3 @@ uint8_t g_volume = DEFAULT_VOLUME;
 
 Rotary g_encoder = Rotary(ENCODER_PIN_A, ENCODER_PIN_B);
 SI4735 g_si4735;
-Si5351 si5351;
