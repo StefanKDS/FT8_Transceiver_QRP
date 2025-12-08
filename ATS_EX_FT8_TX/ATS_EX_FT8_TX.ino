@@ -3,6 +3,7 @@
 
 Si5351 si5351;
 unsigned long  freq;
+bool tx_on;
 
 void OnMessage(String message) 
 {
@@ -76,6 +77,7 @@ void readSerial()
 void setup(void)
 {
   Serial.begin(9600);
+  tx_on = false;
   freq= 7074000;
   word cal_factor = 0;
   si5351.init(SI5351_CRYSTAL_LOAD_8PF, 0, 0); 
@@ -89,6 +91,7 @@ void setup(void)
   TCCR1B = 0x81; // Timer1 Input Capture Noise Canceler
   ACSR |= (1<<ACIC);  // Analog Comparator Capture Input
   pinMode(7, INPUT); //PD7 = AN1 = HiZ, PD6 = AN0 = 0
+  pinMode(4, OUTPUT); // Antennenrelais
   pinMode(13, OUTPUT);
 }
 
@@ -96,12 +99,12 @@ void setup(void)
 void loop(void)
 {
   readSerial();
- // Modulationsfrequenz messen über Analog Comparator Pin7 = AN1
+  // Modulationsfrequenz messen über Analog Comparator Pin7 = AN1
 
- unsigned int d1,d2;
- int FSK = 10;
- int FSKtx = 0;
- while (FSK>0){
+  unsigned int d1,d2;
+  int FSK = 10;
+  int FSKtx = 0;
+  while (FSK>0){
   TCNT1 = 0;
   while (ACSR &(1<<ACO)){
     if (TCNT1>65000) {break;
@@ -128,8 +131,10 @@ void loop(void)
           digitalWrite(13,1);
           // TX on
           si5351.output_enable(SI5351_CLK2, 1);   // TX on
-          //Serial.println("<TX>1</TX>");
-          Serial.println(freq);
+          tx_on = false;
+          Serial.println("<TX>1</TX>");
+          digitalWrite(4,1);
+          //Serial.println(freq);
       }
       si5351.set_freq((freq * 100 + codefreq), SI5351_CLK2);  
       FSKtx = 1;
@@ -141,6 +146,12 @@ void loop(void)
  }
   digitalWrite(13,0);
   si5351.output_enable(SI5351_CLK2, 0);   //TX off
-  //Serial.println("<TX>0</TX>");
+  digitalWrite(4,0);
+  
+  if(tx_on == true)
+  {
+    tx_on = false;
+    Serial.println("<TX>0</TX>");
+  }
   FSKtx = 0;
 }
