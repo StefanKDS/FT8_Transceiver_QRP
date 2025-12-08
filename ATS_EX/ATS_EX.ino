@@ -77,8 +77,8 @@ void readSerial()
   static char buffer[100];
   static int index = 0;
 
-  while (Serial.available()) {
-    char c = Serial.read();
+  while (Serial1.available()) {
+    char c = Serial1.read();
     if (c == '\n' || index == sizeof(buffer) - 1) { // Nachricht beendet oder Puffer voll
       buffer[index] = '\0'; // Null-Terminierung
       OnMessage(buffer);
@@ -127,6 +127,7 @@ int getLastStep()
 //Initialize controller
 void setup()
 {
+    Serial1.begin(9600);
     Serial.begin(9600);
 
     Serial.println("PinModes");
@@ -487,17 +488,20 @@ void showFrequency(bool cleanDisplay = false)
 
     if (g_bandIndex == SW_BAND_TYPE)
     {
-      Serial.print("<Freq>");
+      Serial1.print("<Freq>");
+      Serial1.print(freqDisplay);
       Serial.print(freqDisplay);
-      if (isSSB())
+     /* if (isSSB())
       {
+        Serial1.print(ssbSuffix);
         Serial.print(ssbSuffix);
       }
       else
       {
+        Serial1.print(.00);
         Serial.print(.00);
-      }
-      Serial.println("</Freq>");
+      }*/
+      Serial1.println("</Freq>");
     }
 
     if (g_Settings[SettingsIndex::UnitsSwitch].param == 1 && (!isSSB() || isSSB() && len < 5))
