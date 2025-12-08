@@ -15,7 +15,6 @@
 #include <Tiny4kOLED.h>
 
 #include "PixelOperatorBold.h"
-#include "si5351.h"
 #include "font14x24sevenSeg.h"
 #include "Rotary.h"
 #include "SimpleButton.h"
@@ -27,6 +26,68 @@
 
 void showStatus(bool cleanFreq = false);
 void applyBandConfiguration(bool extraSSBReset);
+
+void OnMessage(char input[100]) 
+{
+  char command[20] = {0};  // Vorinitialisierte Arrays vermeiden Fragmentierung
+  char parameter[20] = {0};
+
+  char *start = strchr(input, '<');
+  char *mid = strchr(input, '>'); 
+  char *end = strrchr(input, '<'); 
+
+  if (start && mid && end && start < mid && mid < end) { 
+    start++;
+
+    strncpy(command, start, mid - start);
+    command[mid - start] = '\0';
+
+    strncpy(parameter, mid + 1, end - mid - 1);
+    parameter[end - mid - 1] = '\0';
+
+    // TX Message
+    if (strcmp(command, "TX") == 0) 
+    {
+      if(parameter[0] == '1')
+      {
+        g_txActive = true;
+        uint8_t vol = g_si4735.getCurrentVolume();
+        if (vol > 0 && g_muteVolume == 0)
+        {
+            g_muteVolume = vol;
+            g_si4735.setVolume(0);
+        }
+      }
+      else
+      {
+        g_txActive = false;
+        if (g_muteVolume > 0)
+        {
+            g_si4735.setVolume(g_muteVolume);
+            g_muteVolume = 0;
+        }
+      }
+     //  showTXStatus();
+    }
+  }
+}
+
+void readSerial() 
+{
+  static char buffer[100];
+  static int index = 0;
+
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n' || index == sizeof(buffer) - 1) { // Nachricht beendet oder Puffer voll
+      buffer[index] = '\0'; // Null-Terminierung
+      OnMessage(buffer);
+      index = 0;  // Puffer zurücksetzen
+    } else {
+      buffer[index++] = c;
+    }
+  }
+}
 
 bool isSSB()
 {
@@ -68,26 +129,6 @@ void setup()
 {
     Serial.begin(9600);
 
-    delay(3000);
-
-    // SI5351 ////////////////////////////////////////////////////
-    Serial.println("Init Si5351");
-    if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 0, 0) == true)
-    {
-        Serial.println("Init Si5351 OK !");
-        si5351.set_correction(0, SI5351_PLL_INPUT_XO);
-        si5351.set_pll(SI5351_PLL_FIXED, SI5351_PLLA);
-
-        // TX (CLK2) vorbereiten
-        si5351.drive_strength(SI5351_CLK2, SI5351_DRIVE_8MA);
-        si5351.output_enable(SI5351_CLK2, 0);
-    }
-    else
-    {
-        Serial.println("Init Si5351 failed !");
-    }
-
-    // PinModes ////////////////////////////////////////////////////
     Serial.println("PinModes");
     // Replace AVR direct register usage with Arduino API for Nano R4
 
@@ -163,8 +204,6 @@ void setup()
     applyBandConfiguration(false);
     g_currentFrequency = g_previousFrequency = g_si4735.getFrequency();
     g_si4735.setVolume(g_volume);
-
-    si5351.set_freq(g_currentFrequency * 1000ULL, SI5351_CLK2);
 
     //Draw main screen
     oled.clear();
@@ -448,9 +487,17 @@ void showFrequency(bool cleanDisplay = false)
 
     if (g_bandIndex == SW_BAND_TYPE)
     {
-       si5351.set_freq(g_currentFrequency * 1000ULL, SI5351_CLK2);
-       Serial.println(g_currentFrequency);
-       Serial.println(g_currentFrequency * 1000ULL);
+      Serial.print("<Freq>");
+      Serial.print(freqDisplay);
+      if (isSSB())
+      {
+        Serial.print(ssbSuffix);
+      }
+      else
+      {
+        Serial.print(.00);
+      }
+      Serial.println("</Freq>");
     }
 
     if (g_Settings[SettingsIndex::UnitsSwitch].param == 1 && (!isSSB() || isSSB() && len < 5))
@@ -1611,6 +1658,8 @@ void loop()
     uint8_t x;
     bool skipButtonEvents = false;
     bool frequencyRecentlyUpdated = millis() - g_lastFreqChange < 70;
+
+    readSerial();
 
     //Faster frequency tune
     if (g_processFreqChange && !isSSB())
