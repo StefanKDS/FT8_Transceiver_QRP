@@ -300,3 +300,4 @@ uint8_t g_volume = DEFAULT_VOLUME;
 
 Rotary g_encoder = Rotary(ENCODER_PIN_A, ENCODER_PIN_B);
 SI4735 g_si4735;
+Si5351 si5351;
