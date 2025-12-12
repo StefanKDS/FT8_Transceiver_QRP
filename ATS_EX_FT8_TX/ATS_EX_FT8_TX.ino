@@ -131,7 +131,7 @@ void loop(void)
           digitalWrite(13,1);
           // TX on
           si5351.output_enable(SI5351_CLK2, 1);   // TX on
-          tx_on = false;
+          tx_on = true;
           Serial.println("<TX>1</TX>");
           digitalWrite(4,1);
           //Serial.println(freq);
