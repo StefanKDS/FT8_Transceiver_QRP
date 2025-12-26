@@ -81,6 +81,7 @@ void readSerial()
     char c = Serial1.read();
     if (c == '\n' || index == sizeof(buffer) - 1) { // Nachricht beendet oder Puffer voll
       buffer[index] = '\0'; // Null-Terminierung
+      Serial.println(buffer);
       OnMessage(buffer);
       index = 0;  // Puffer zurücksetzen
     } else {
@@ -488,20 +489,10 @@ void showFrequency(bool cleanDisplay = false)
 
     if (g_bandIndex == SW_BAND_TYPE)
     {
-      Serial1.print("<Freq>");
-      Serial1.print(freqDisplay);
-      Serial.print(freqDisplay);
-     /* if (isSSB())
-      {
-        Serial1.print(ssbSuffix);
-        Serial.print(ssbSuffix);
-      }
-      else
-      {
-        Serial1.print(.00);
-        Serial.print(.00);
-      }*/
-      Serial1.println("</Freq>");
+        char buffer[40];
+        snprintf(buffer, sizeof(buffer), "<Freq>%s</Freq>", freqDisplay);
+        Serial1.println(buffer);
+        Serial.println(freqDisplay);
     }
 
     if (g_Settings[SettingsIndex::UnitsSwitch].param == 1 && (!isSSB() || isSSB() && len < 5))
