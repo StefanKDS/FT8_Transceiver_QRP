@@ -1,18 +1,16 @@
-#include "si5351.h"
-#include "Wire.h"
+#include "si5351.h"  // Bibliothek für den SI5351-Frequenzgenerator
+#include "Wire.h"    // I2C-Bibliothek (wird vom SI5351 verwendet)
 
 Si5351 si5351;
 
-unsigned long freq = 7074000;
-bool tx_on = false;
+unsigned long freq = 7074000; // Startfrequenz 7,074 MHz (typische FT8-Frequenz)
+bool tx_on = false;           // Statusvariable, ob TX aktiv ist
 
 // ------------------------------------------------------------
-// UART MESSAGE HANDLING
+// UART MESSAGE HANDLING (Verarbeitung eingehender UART-Nachrichten)
 // ------------------------------------------------------------
 void OnMessage(char input[100])
 {
-
-  Serial.print(input);
   char command[20] = {0};
   char parameter[20] = {0};
   char output[20] = {0};
@@ -24,23 +22,19 @@ void OnMessage(char input[100])
   if (!start || !mid || !end) return;
   if (!(start < mid && mid < end)) return;
 
-  // Command extrahieren
   int cmdLen = mid - start - 1;
   if (cmdLen <= 0 || cmdLen >= sizeof(command)) return;
   strncpy(command, start + 1, cmdLen);
   command[cmdLen] = '\0';
 
-  // Parameter extrahieren
   int parLen = end - mid - 1;
   if (parLen <= 0 || parLen >= sizeof(parameter)) return;
   strncpy(parameter, mid + 1, parLen);
   parameter[parLen] = '\0';
 
-  // Kommando prüfen
   if (strcmp(command, "Freq") != 0) return;
   if (parameter[0] == '/') return;
 
-  // Dezimalpunkt entfernen
   int j = 0;
   for (int i = 0; parameter[i] && j < sizeof(output) - 1; i++)
   {
@@ -54,6 +48,9 @@ void OnMessage(char input[100])
   freq = atol(output) * 1000;
 }
 
+// ------------------------------------------------------------
+// Serial-Daten einlesen und Puffer aufbauen
+// ------------------------------------------------------------
 void readSerial()
 {
   static char buffer[100];
@@ -63,59 +60,53 @@ void readSerial()
   {
     char c = Serial.read();
 
-    // Zeilenende
     if (c == '\n')
     {
       buffer[index] = '\0';
-
-      if (index > 0)               // leere Zeilen ignorieren
-        OnMessage(buffer);
-
+      if (index > 0) OnMessage(buffer);
       index = 0;
     }
-    else if (c != '\r')            // CR ignorieren
+    else if (c != '\r')
     {
       if (index < sizeof(buffer) - 1)
         buffer[index++] = c;
       else
-        index = 0;                 // Overflow → verwerfen
+        index = 0;
     }
   }
 }
 
 // ------------------------------------------------------------
-// TX CONTROL
+// TX Steuerung
 // ------------------------------------------------------------
 void startTX()
 {
-  if (tx_on) 
-    return;
+  if (tx_on) return;
 
   tx_on = true;
   si5351.output_enable(SI5351_CLK2, 1);
-  digitalWrite(13, HIGH); 
-  digitalWrite(4, LOW); // TX Relais an
-  digitalWrite(5, HIGH); // Rot an
-  digitalWrite(9, LOW); // Grün aus
+  digitalWrite(13, HIGH);
+  digitalWrite(4, LOW);
+  digitalWrite(5, HIGH);
+  digitalWrite(9, LOW);
   Serial.println("<TX>1</TX>");
 }
 
 void stopTX()
 {
-  if (!tx_on) 
-    return;
+  if (!tx_on) return;
 
   tx_on = false;
   si5351.output_enable(SI5351_CLK2, 0);
   digitalWrite(13, LOW);
-  digitalWrite(4, HIGH); // TX Relais aus
-  digitalWrite(5, LOW); // Rot aus
-  digitalWrite(9, HIGH); // Grün an
+  digitalWrite(4, HIGH);
+  digitalWrite(5, LOW);
+  digitalWrite(9, HIGH);
   Serial.println("<TX>0</TX>");
 }
 
 // ------------------------------------------------------------
-// SETUP
+// Setup
 // ------------------------------------------------------------
 void setup()
 {
@@ -128,7 +119,7 @@ void setup()
   si5351.output_enable(SI5351_CLK2, 0);
 
   TCCR1A = 0x00;
-  TCCR1B = 0x81;      // Input Capture + Noise Canceler
+  TCCR1B = 0x81;
   ACSR  |= (1 << ACIC);
 
   pinMode(7, INPUT);
@@ -137,15 +128,15 @@ void setup()
   pinMode(9, OUTPUT);
   pinMode(13, OUTPUT);
 
-  digitalWrite(4, HIGH); //TX aus
-  digitalWrite(5, LOW); //Rote LED aus
-  digitalWrite(9, HIGH); //Grüne LED an
+  digitalWrite(4, HIGH);
+  digitalWrite(5, LOW);
+  digitalWrite(9, HIGH);
 
   stopTX();
 }
 
 // ------------------------------------------------------------
-// MAIN LOOP
+// Hauptschleife
 // ------------------------------------------------------------
 void loop()
 {
@@ -160,24 +151,44 @@ void loop()
     readSerial();
     TCNT1 = 0;
 
+    // high -> low
     while (ACSR & (1 << ACO))
+    {
+      readSerial();
       if (TCNT1 > 65000) break;
+    }
 
+    // low -> high
     while (!(ACSR & (1 << ACO)))
+    {
+      readSerial();
       if (TCNT1 > 65000) break;
+    }
 
     TCNT1 = 0;
 
+    // high
     while (ACSR & (1 << ACO))
+    {
+      readSerial();
       if (TCNT1 > 65000) break;
+    }
 
     d1 = ICR1;
 
+    // low
     while (!(ACSR & (1 << ACO)))
+    {
+      readSerial();
       if (TCNT1 > 65000) break;
+    }
 
+    // high
     while (ACSR & (1 << ACO))
+    {
+      readSerial();
       if (TCNT1 > 65000) break;
+    }
 
     d2 = ICR1;
 

@@ -492,7 +492,8 @@ void showFrequency(bool cleanDisplay = false)
         char buffer[40];
         snprintf(buffer, sizeof(buffer), "<Freq>%s</Freq>", freqDisplay);
         Serial1.println(buffer);
-        Serial.println(freqDisplay);
+
+        //Serial.println(buffer);
     }
 
     if (g_Settings[SettingsIndex::UnitsSwitch].param == 1 && (!isSSB() || isSSB() && len < 5))
