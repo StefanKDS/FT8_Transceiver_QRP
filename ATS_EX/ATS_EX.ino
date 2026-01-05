@@ -9,6 +9,11 @@
 // 02.2024
 // http://github.com/goshante
 // ----------------------------------------------------------------------
+// By StefanKDS
+// 01.2026
+// http://github.com/StefanKDS
+// Modification for FT8 TX Module
+// ----------------------------------------------------------------------
 
 #include <SI4735.h>
 #include <EEPROM.h>
@@ -132,19 +137,12 @@ void setup()
     Serial.begin(9600);
 
     Serial.println("PinModes");
-    // Replace AVR direct register usage with Arduino API for Nano R4
-
-    // Pin 13 (LED) as output (original used DDRB / DDB5).
     pinMode(13, OUTPUT);
 
-    // Encoder pins: use input pullup (original used DDRD / PORTD).
     pinMode(ENCODER_PIN_A, INPUT_PULLUP);
     pinMode(ENCODER_PIN_B, INPUT_PULLUP);
-
-    // Encoder button / reset pin - ensure input pullup too
     pinMode(ENCODER_BUTTON, INPUT_PULLUP);
 
-    // Note: ADC scale on Nano R4 may differ from ATmega328p. You may need to calibrate.
     g_voltagePinConnnected = analogRead(BATTERY_VOLTAGE_PIN) > 300;
 
     // OLED ////////////////////////////////////////////////////
@@ -159,8 +157,6 @@ void setup()
     Serial.println("Start");
 
     // Check for EEPROM reset via encoder button (was reading PINC) 
-    // Original logic: if (!(PINC & (1 << (ENCODER_BUTTON - 14))))
-    // Now use digitalRead with INPUT_PULLUP -> LOW means pressed.
     if (digitalRead(ENCODER_BUTTON) == LOW)
     {
         saveAllReceiverInformation();
@@ -523,8 +519,6 @@ void showFrequencySeek(uint16_t freq)
 
 bool checkStopSeeking()
 {
-    // Replace PINC direct read with digitalRead
-    // Original: return g_seekStop || !(PINC & (1 << (ENCODER_BUTTON - 14)));
     return g_seekStop || (digitalRead(ENCODER_BUTTON) == LOW);
 }
 
@@ -804,9 +798,6 @@ void showVolume()
 }
 
 //Draw battery charge
-//This feature requires hardware mod
-//Voltage divider made of two 10 KOhm resistors between + and GND of Li-Ion battery
-//Solder it to A2 analog pin
 void showCharge(bool forceShow)
 {
     if (!g_voltagePinConnnected)
@@ -815,8 +806,6 @@ void showCharge(bool forceShow)
     // mV, Percent
     //This values represent voltage values in ATMega328p analog units with reference voltage 3.30v
     //Voltage pin reads voltage from voltage divider, so it have to be 1/2 of Li-Ion battery voltage
-    // NOTE: On Nano R4 ADC result range may differ (different ADC resolution/reference).
-    //       If the battery readings look off you should recalibrate the table below.
     constexpr const uint8_t rows = 10;
     const uint16_t dischargeTable[rows][2] =
     {
@@ -882,7 +871,6 @@ void showCharge(bool forceShow)
     averageSamples = (averageSamples + sample) / 2;
 }
 
-#if USE_RDS
 void showRDS()
 {
     static uint16_t lastUpdatedFreq = 0;
@@ -950,7 +938,6 @@ void showRDS()
     g_rdsPrevLen = len;
     g_rdsSwitchPressed = false;
 }
-#endif
 
 // ---------------------------------------------------------------------------
 // Part 3 (steps, s-meter, bandwidth, SSB patch, applyBandConfiguration, etc.)
@@ -1107,13 +1094,11 @@ void bandSwitch(bool up)
             oledPrint(_literal_EmptyLine, 0, 6, DEFAULT_FONT);
         }
 
-#if USE_RDS
         if (g_displayRDS && g_currentMode != FM)
         {
             g_displayRDS = false;
             oledPrint(_literal_EmptyLine, 0, 6, DEFAULT_FONT);
         }
-#endif
 
         g_currentBFO = 0;
         if (isSSB())
@@ -1135,12 +1120,10 @@ void loadSSBPatch()
     g_stepIndex = 0;
 }
 
-#if USE_RDS
 void setRDSConfig(uint8_t bias)
 {
     g_si4735.setRdsConfig(1, bias, bias, bias, bias);
 }
-#endif
 
 void applyBandConfiguration(bool extraSSBReset)
 {
@@ -1155,9 +1138,7 @@ void applyBandConfiguration(bool extraSSBReset)
         g_si4735.setSeekFmLimits(g_bandList[g_bandIndex].minimumFreq, g_bandList[g_bandIndex].maximumFreq);
         g_si4735.setSeekFmSpacing(1);
         g_ssbLoaded = false;
-#if USE_RDS
         setRDSConfig(g_Settings[SettingsIndex::RDSError].param);
-#endif
         g_si4735.setFifoCount(1);
         g_bwIndexFM = g_bandList[g_bandIndex].bandwidthIdx;
         g_si4735.setFmBandwidth(g_bwIndexFM);
@@ -1410,9 +1391,7 @@ void doBFOCalibration(int8_t v)
 
     if (isSSB())
     {
-#if USE_RDS
         setRDSConfig(g_Settings[SettingsIndex::BFO].param);
-#endif
         updateBFO();
     }
 }
@@ -1435,7 +1414,6 @@ void doCWSwitch(int8_t v )
         applyBandConfiguration(true);
 }
 
-#if USE_RDS
 void doRDSErrorLevel(int8_t v)
 {
     doSwitchLogic(g_Settings[SettingsIndex::RDSError].param, 0, 3, v);
@@ -1459,7 +1437,6 @@ void doRDS()
     else
         updateLowerDisplayLine();
 }
-#endif
 
 void doBandwidthLogic(int8_t& bwIndex, uint8_t upperLimit, uint8_t v)
 {
@@ -1576,10 +1553,8 @@ void doFrequencyTune()
     if (g_currentMode == FM)
     {
         g_currentFrequency += g_tabStepFM[g_FMStepIndex] * g_encoderCount; //g_si4735.getFrequency() is too slow
-#if USE_RDS
         if (g_displayRDS)
             oledPrint(_literal_EmptyLine, 0, 6, DEFAULT_FONT);
-#endif
     }
     else
         g_currentFrequency += g_tabStep[g_stepIndex] * g_encoderCount;
@@ -1675,9 +1650,7 @@ void loop()
     
     if (millis() - g_lastFreqChange >= 1000)
     {
-#if USE_RDS
         showRDS();
-#endif
 
         if (g_sMeterOn && !g_settingsActive)
             showSMeter();
@@ -1933,10 +1906,8 @@ void loop()
                 g_bandList[g_bandIndex].currentStepIdx = g_stepIndex;
                 applyBandConfiguration(false);
             }
-#if USE_RDS
             else
                 doRDS();
-#endif
         }
     }
 
