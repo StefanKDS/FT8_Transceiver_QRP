@@ -128,7 +128,7 @@ int getLastStep()
 // ------- Main logic -------
 // --------------------------
 
-#define APP_VERSION 118
+#define APP_VERSION 200
 
 //Initialize controller
 void setup()
@@ -170,10 +170,10 @@ void setup()
     }
     else
     {
-        oledPrint(" ATS-20 RECEIVER", 0, 0, DEFAULT_FONT, true);
+        oledPrint(" FT8 TRANSCEIVER", 0, 0, DEFAULT_FONT, true);
         oledPrint("ATS_EX v1.18", 16, 2);
-        oledPrint("Goshante 2024", 12, 4);
-        oledPrint("Best firmware", 12, 6);
+        oledPrint("FT8_MOD v1.00", 14, 4);
+        oledPrint("DL1SKD 2025", 12, 6);
         delay(2000);
     }
     oled.clear();
