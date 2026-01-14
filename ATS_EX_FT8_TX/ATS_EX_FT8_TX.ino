@@ -214,13 +214,15 @@ void loop()
   while (FSK > 0)
   {
     readSerial();
-    TCNT1 = 0;
+    TCNT1 = 0;  // Set Timer1 to 0
 
+    // The following code block is needed to
+    // start on a clean defined signal transition
     // Wait for high → low transition
     while (ACSR & (1 << ACO))
     {
       readSerial();
-      if (TCNT1 > 65000) 
+      if (TCNT1 > 65000) // Timeoutguard
         break;
     }
 
@@ -228,27 +230,28 @@ void loop()
     while (!(ACSR & (1 << ACO)))
     {
       readSerial();
-      if (TCNT1 > 65000) 
+      if (TCNT1 > 65000) // Timeoutguard
         break;
     }
-
+    // End of the block
+    
     TCNT1 = 0;
 
     // Measure high period
     while (ACSR & (1 << ACO))
     {
       readSerial();
-      if (TCNT1 > 65000) 
+      if (TCNT1 > 65000) // Timeoutguard
         break;
     }
 
-    d1 = ICR1;
+    d1 = ICR1; // Save value of TCNT1 to d1 ( High period )
 
     // Measure low period
     while (!(ACSR & (1 << ACO)))
     {
       readSerial();
-      if (TCNT1 > 65000) 
+      if (TCNT1 > 65000) // Timeoutguard
         break;
     }
 
@@ -256,18 +259,22 @@ void loop()
     while (ACSR & (1 << ACO))
     {
       readSerial();
-      if (TCNT1 > 65000) 
+      if (TCNT1 > 65000) // Timeoutguard
         break;
     }
 
-    d2 = ICR1;
+    d2 = ICR1; // Save value of TCNT1 to d2 ( Low and next high period )
 
     // Calculate frequency from measured periods
+    // Do we have valid values ?
     if (TCNT1 < 65000 && d2 > d1)
     {
+      // 16MHz CPU clock * 100 ( better resolution ) / (d2-1)
+      // Result is the audiofrequency in Hz
       unsigned long codefreq = 1600000000UL / (d2 - d1);
 
       // Valid FT8 audio tone range
+      // FT8 audio sounds are normaly under 3,5kHz ( again scaled by 100 )
       if (codefreq < 350000)
       {
         // Set RF frequency + audio tone offset
