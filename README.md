@@ -31,7 +31,7 @@ On the ATS20+ Board we have to make some small modifications:
 ## Details:
 ![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/004.jpg)
 
-
+![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/005.jpg)
 
 ![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/006.jpg)
 
