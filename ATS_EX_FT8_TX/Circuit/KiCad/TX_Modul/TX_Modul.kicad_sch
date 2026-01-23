@@ -1640,6 +1640,16 @@
 		)
 		(uuid "14cc2176-3f4d-45bb-a4fa-52b821be8992")
 	)
+	(text "Nano\n"
+		(exclude_from_sim no)
+		(at 127.254 45.974 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "b162908e-5bcd-4dd4-a3b5-709396202a81")
+	)
 	(junction
 		(at 160.02 55.88)
 		(diameter 0)
