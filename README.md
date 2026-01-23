@@ -51,6 +51,8 @@ PowerUnit HW688
 PA
 ![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/PA.jpg)
 
+At 12V VCC and 7Mhz / 1mW ( 0dBm ) input it has around +33dBm ( 2W )
+
 ---------------------------------------------------------------------------------------------------
 
 LPF
