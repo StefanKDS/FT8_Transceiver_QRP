@@ -9,7 +9,7 @@ I made modifications on both source codes.
 
 Please note that the Microcontroller of the TX part has to be a Nano, not a Nano R4, because I use the comperator input D6 / D7. The Nano R4 don't has these input.
 
-The PA is a 3W PA from China. For this use it's totally OK.
+The PA is a 2W PA from China. For this use it's totally OK.
 In the end of these document you can find pictures of all parts I bought.
 
 ## Overview:
