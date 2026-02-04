@@ -32,7 +32,7 @@ On the ATS20+ Board we have to make some small modifications:
 ## Details:
 ![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/004.jpg)
 
-![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/005_1.jpg)
+![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/ATS_EX_FT8_TX/Circuit/KiCad/TX_Modul/TX_Module_Schematic.png)
 
 ![](https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/img/006.jpg)
 
