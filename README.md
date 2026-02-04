@@ -4,6 +4,7 @@ My QRP FT8 Transceiver is basded on a ATS20+ Receiver and on the FT8 project on 
 
 The new Firmware of the ATS20+ is based on the firmware from Goshante: https://github.com/goshante/ats20_ats_ex .  
 The Firmware of the TX part is based on these project: https://www.elektronik-labor.de/HF/FT8QRP.html .
+You can find the documentation of the TX code here: https://github.com/StefanKDS/FT8_Transceiver_QRP/blob/main/ATS_EX_FT8_TX/Documentation/FT8_TX_Documentation.pdf
 
 I made modifications on both source codes.
 
