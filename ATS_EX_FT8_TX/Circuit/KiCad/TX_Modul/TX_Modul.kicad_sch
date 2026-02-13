@@ -6048,6 +6048,89 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:Conn_01x07_Socket")
+		(at 73.66 36.83 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a70cfbf0-a5a8-42f8-9ee7-20deb7a47a4e")
+		(property "Reference" "Si1"
+			(at 73.66 34.29 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x07_Socket"
+			(at 73.66 34.29 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x07_P2.54mm_Vertical"
+			(at 73.66 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 73.66 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x07, script generated"
+			(at 73.66 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "04a9af8c-8ab0-4fd6-9400-9950efb3db00")
+		)
+		(pin "3"
+			(uuid "c4b79c20-e954-4a4a-b88b-aabbc816f58f")
+		)
+		(pin "7"
+			(uuid "bd984617-d324-450f-a31a-5c91321120ac")
+		)
+		(pin "1"
+			(uuid "0ba5ad07-a06c-43a6-8003-9869dcad3b9d")
+		)
+		(pin "2"
+			(uuid "04f53632-1cab-48e5-935d-fdbeab0754e7")
+		)
+		(pin "5"
+			(uuid "6e11619c-4a0c-41af-b97d-971bbb373486")
+		)
+		(pin "6"
+			(uuid "867ee15e-9107-4d60-a729-57cfa8004772")
+		)
+		(instances
+			(project "TX_Modul"
+				(path "/a9cb15dd-917f-4e9c-8fab-e72d6e2fbc01"
+					(reference "Si1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "PCM_SparkFun-PowerSymbol:GND")
 		(at 91.44 77.47 0)
 		(unit 1)
