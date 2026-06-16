@@ -545,7 +545,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "Gerber/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",
@@ -680,7 +680,7 @@
         "uuid": "a9cb15dd-917f-4e9c-8fab-e72d6e2fbc01"
       }
     ],
-    "used_designators": "PWR1,VCC1,5V1",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [
