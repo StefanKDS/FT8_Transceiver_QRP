@@ -240,7 +240,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": ""
+      "sch_revision": "0"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -659,13 +659,18 @@
       {
         "filename": "TX_Modul.kicad_sch",
         "name": "TX_Modul",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "uuid": "a9cb15dd-917f-4e9c-8fab-e72d6e2fbc01"
       }
     ],
     "used_designators": "",
     "variants": []
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "a9cb15dd-917f-4e9c-8fab-e72d6e2fbc01",
+      "TX_Modul"
+    ]
+  ],
   "text_variables": {},
   "tuning_profiles": {
     "meta": {

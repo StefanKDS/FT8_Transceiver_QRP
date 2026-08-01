@@ -436,7 +436,6 @@
 					)
 				)
 			)
-
 			(property "Value" "Conn_01x03_Socket"
 				(at 0 -5.08 0)
 				(show_name no)
@@ -5457,7 +5456,7 @@
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom yes)
-		(on_board yes)
+		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
 		(fields_autoplaced yes)
